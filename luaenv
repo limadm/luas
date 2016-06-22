@@ -71,8 +71,8 @@ list() {
 }
 
 update() {
-	printf "Updating package list... "
-	if ! curl -# -o "$LUAENV_UPDATE" "https://github.com/limadm/luaenv/raw/master/update"; then
+	echo "Updating package list... "
+	if ! curl -# -o "$LUAENV_UPDATE" "https://raw.githubusercontent.com/limadm/luaenv/master/update"; then
 		echo "Could not connect to network, please try again later." 1>&2
 		exit 1
 	fi
