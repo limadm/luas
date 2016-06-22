@@ -136,7 +136,11 @@ install() {
 	rocks_dir="$tmp_dir/$rocks_pkg"
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
-	"$rocks_dir/configure" --prefix="$install_dir"
+	if echo "$1" | fgrep -q luajit; then
+		"$rocks_dir/configure" --lua-suffix=jit --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
+	else
+		"$rocks_dir/configure" --prefix="$install_dir"
+	fi
 	if !( $MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install ); then
 		echo "Could not build luarocks, please verify if build dependencies are installed in your system." 1>&2
 		exit 1
