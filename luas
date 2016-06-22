@@ -2,52 +2,52 @@
 # Lua environment manager 0.2
 # Published under MIT license. Daniel Lima, 2016 <danielm@tinyhub.tk>
 
-LUAENV_CACHE="$HOME/.cache/luaenv"
-LUAENV_UPDATE="$LUAENV_CACHE/update"
-LUAENV_VERSIONS="$LUAENV_CACHE/versions"
-LUAENV_LUAROCKS="$LUAENV_CACHE/luarocks_version"
+LUAS_CACHE="$HOME/.cache/luas"
+LUAS_UPDATE="$LUAS_CACHE/update"
+LUAS_VERSIONS="$LUAS_CACHE/versions"
+LUAS_LUAROCKS="$LUAS_CACHE/luarocks_version"
 MAKE="make -j$(nproc)"
-mkdir -p "$LUAENV_CACHE"
-if [ -d ".luaenv" ]; then
-	LUAENV_DIR="$(pwd)/.luaenv"
+mkdir -p "$LUAS_CACHE"
+if [ -d ".luas" ]; then
+	LUAS_DIR="$(pwd)/.luas"
 else
-	LUAENV_DIR="$HOME/.luaenv"
+	LUAS_DIR="$HOME/.luas"
 fi
-if [ ! -d "$LUAENV_DIR" ]; then
-	mkdir -p "$LUAENV_DIR"
+if [ ! -d "$LUAS_DIR" ]; then
+	mkdir -p "$LUAS_DIR"
 fi
 
 help() {
-	echo "luaenv 0.2	Lua environment manager"
+	echo "luas 0.2	Lua environment manager"
 	echo ""
 	echo "Usage:"
-	echo "  luaenv list			list versions"
-	echo "  luaenv update			update version list"
-	echo "  luaenv init <version>		create .luaenv in current dir and install <version>"
-	echo "  luaenv install <version>	install lua <version> and latest luarocks"
-	echo "  luaenv remove <version>	remove lua <version> and its luarocks tree"
-	echo "  luaenv use <version>		setup environment to use <version>"
-	echo "  luaenv help			print this message"
+	echo "  luas list			list versions"
+	echo "  luas update			update version list"
+	echo "  luas init <version>		create .luas in current dir and install <version>"
+	echo "  luas install <version>	install lua <version> and latest luarocks"
+	echo "  luas remove <version>	remove lua <version> and its luarocks tree"
+	echo "  luas use <version>		setup environment to use <version>"
+	echo "  luas help			print this message"
 	echo ""
 }
 
 use() {
-	luarocks="$LUAENV_DIR/$1/bin/luarocks"
+	luarocks="$LUAS_DIR/$1/bin/luarocks"
 	if [ ! -x "$luarocks" ]; then
 		echo "$1 is not installed." 1>&2
 		exit 1
 	fi
-	if [ ! "$LUAENV_PATH" ]; then
-		export LUAENV_PATH="$PATH"
+	if [ ! "$LUAS_PATH" ]; then
+		export LUAS_PATH="$PATH"
 	fi
-	export PATH="$($luarocks path --lr-bin):$LUAENV_PATH"
+	export PATH="$($luarocks path --lr-bin):$LUAS_PATH"
 	export LUA_PATH="./?.lua;./?/init.lua;$($luarocks path --lr-path)"
 	export LUA_CPATH="./?.so;$($luarocks path --lr-cpath)"
 	exec "$SHELL"
 }
 
 list() {
-	if [ ! -f "$LUAENV_VERSIONS" ]; then
+	if [ ! -f "$LUAS_VERSIONS" ]; then
 		echo "Could not connect to network, please try again later." 1>&2
 		exit 1
 	fi
@@ -57,11 +57,11 @@ list() {
 	echo " * active"
 	echo ""
 	echo "Versions:"
-	cut -f1 "$LUAENV_VERSIONS" | \
+	cut -f1 "$LUAS_VERSIONS" | \
 		while read -r ver; do
 			if $(echo "$LUA_PATH" | fgrep -q "$ver"); then
 				echo " * $ver"
-			elif [ -d "$LUAENV_DIR/$ver" ]; then
+			elif [ -d "$LUAS_DIR/$ver" ]; then
 				echo " - $ver"
 			else
 				echo "   $ver"
@@ -72,12 +72,12 @@ list() {
 
 update() {
 	echo "Updating package list... "
-	if ! curl -# -o "$LUAENV_UPDATE" "https://raw.githubusercontent.com/limadm/luaenv/master/update"; then
+	if ! curl -# -o "$LUAS_UPDATE" "https://raw.githubusercontent.com/limadm/luas/master/update"; then
 		echo "Could not connect to network, please try again later." 1>&2
 		exit 1
 	fi
-	head -n-1 "$LUAENV_UPDATE" >"$LUAENV_VERSIONS"
-	tail -n1  "$LUAENV_UPDATE" >"$LUAENV_LUAROCKS"
+	head -n-1 "$LUAS_UPDATE" >"$LUAS_VERSIONS"
+	tail -n1  "$LUAS_UPDATE" >"$LUAS_LUAROCKS"
 	echo "Done."
 }
 
@@ -86,7 +86,7 @@ getpkg() {
 	url="$(echo "$info" | cut -f2)"
 	md5="$(echo "$info" | cut -f3)"
 	name="$(basename "$url" .tar.gz)"
-	file="$LUAENV_CACHE/$name.tar.gz"
+	file="$LUAS_CACHE/$name.tar.gz"
 	md5s="$(md5sum "$file" | cut -c1-32)"
 	if [ "$md5" != "$md5s" ]; then
 		if ! curl -# -L -o "$file" "$url"; then
@@ -108,17 +108,17 @@ platform() {
 }
 
 install() {
-	if [ ! -f "$LUAENV_VERSIONS" ]; then
+	if [ ! -f "$LUAS_VERSIONS" ]; then
 		echo "An update is needed, please try again later." 1>&2
 		exit 1
 	fi
 
 	echo "Installing $1..."
-	install_dir="$LUAENV_DIR/$1"
+	install_dir="$LUAS_DIR/$1"
 	mkdir -p "$install_dir"
 	tmp_dir="$(mktemp -d)"
 
-	lua_pkg="$(getpkg "$1" "$tmp_dir" "$LUAENV_VERSIONS")"
+	lua_pkg="$(getpkg "$1" "$tmp_dir" "$LUAS_VERSIONS")"
 	lua_dir="$tmp_dir/$lua_pkg"
 	if echo "$1" | fgrep -q luajit; then
 		$MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir"
@@ -131,8 +131,8 @@ install() {
 		fi
 	fi
 
-	rocks_ver="$(cut -f1 "$LUAENV_LUAROCKS")"
-	rocks_pkg="$(getpkg "$rocks_ver" "$tmp_dir" "$LUAENV_LUAROCKS")"
+	rocks_ver="$(cut -f1 "$LUAS_LUAROCKS")"
+	rocks_pkg="$(getpkg "$rocks_ver" "$tmp_dir" "$LUAS_LUAROCKS")"
 	rocks_dir="$tmp_dir/$rocks_pkg"
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
@@ -147,20 +147,20 @@ install() {
 }
 
 remove() {
-	install_dir="$LUAENV_DIR/$1"
+	install_dir="$LUAS_DIR/$1"
 	if [ ! -d "$install_dir" ]; then
 		echo "This version is not installed." 1>&2
 		exit 1
 	fi
 	echo "Removing $install_dir..."
 	rm -rf $install_dir
-	export PATH="$LUAENV_PATH"
+	export PATH="$LUAS_PATH"
 	export LUA_PATH=
 	export LUA_CPATH=
 	echo "Done."
 }
 
-if [ ! -f "$LUAENV_VERSIONS" ]; then
+if [ ! -f "$LUAS_VERSIONS" ]; then
 	update
 fi
 

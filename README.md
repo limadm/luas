@@ -1,19 +1,19 @@
 Lua environment manager
 =======================
 
-An environment manager for Lua VMs in the spirit of rvm, with simple commands,
-shell completions and latest luarocks (2.3.0).
-Installs packages to ./.luaenv (or ~/.luaenv by default if the former does not exist).
+An environment manager for Lua VMs in the spirit of rvm/rbenv from scratch,
+with simpler commands, shell completions and latest luarocks (2.3.0).
+Installs packages to `./.luas` (or `~/.luas` by default if the former does not exist).
 
 Usage:
 
-	luaenv list                   list versions
-	luaenv update                 update version list
-	luaenv init <version>         create ./.luaenv and install <version>
-	luaenv install <version>      install lua <version> and latest luarocks
-	luaenv remove <version>       remove lua <version> and its luarocks tree
-	luaenv use <version>          setup environment to use <version>
-	luaenv help                   print this message
+	luas list                   list versions
+	luas update                 update version list
+	luas init <version>         create ./.luas and install <version>
+	luas install <version>      install lua <version> and latest luarocks
+	luas remove <version>       remove lua <version> and its luarocks tree
+	luas use <version>          setup environment to use <version>
+	luas help                   print this message
 
 Currently supported versions:
 
@@ -26,6 +26,7 @@ Currently supported versions:
 
 Check out the other options too!
 
+- [https://github.com/cehoffman/luaenv](cehoffman/luaenv) (he choose this name first)
 - [https://github.com/mah0x211/lenv](mah0x211/lenv)
 - [https://github.com/DhavalKapil/luaver](DhavalKapil/luaver)
 
