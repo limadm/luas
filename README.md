@@ -6,6 +6,11 @@ minimal dependencies (base/devel, gcc and make), simpler commands, shell complet
 and latest luarocks (2.3.0).
 Installs packages to `./.luas` (or `~/.luas` by default if the former does not exist).
 
+Installation:
+
+	$ git clone github.com:limadm/luas
+	$ cd luas && sudo ./install.sh
+
 Usage:
 
 	luas list                   list versions
