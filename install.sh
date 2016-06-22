@@ -6,4 +6,4 @@ if [ ! "$PREFIX" ]; then
 fi
 install -m755 -D luas "$PREFIX/bin/luas"
 install -m644 -D luas-completion.bash "$PREFIX/share/bash-completion/completions/luas-completion.bash"
-install -m644 -D luas-completion.fish "$PREFIX/share/fish/completions.d/luas-completion.fish"
+install -m644 -D luas-completion.fish "$PREFIX/share/fish/vendor_completions.d/luas-completion.fish"
