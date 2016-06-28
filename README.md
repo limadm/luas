@@ -32,7 +32,7 @@ Currently supported versions:
 
 Check out the other options too!
 
-- [cehoffman/luaenv](https://github.com/cehoffman/luaenv) (he choose the original name first)
+- [cehoffman/luaenv](https://github.com/cehoffman/luaenv)
 - [mah0x211/lenv](https://github.com/mah0x211/lenv)
 - [DhavalKapil/luaver](https://github.com/DhavalKapil/luaver)
 

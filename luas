@@ -6,6 +6,7 @@ LUAS_CACHE="$HOME/.cache/luas"
 LUAS_UPDATE="$LUAS_CACHE/update"
 LUAS_VERSIONS="$LUAS_CACHE/versions"
 LUAS_LUAROCKS="$LUAS_CACHE/luarocks_version"
+LUAS_UPDATE_URL="https://raw.githubusercontent.com/limadm/luas/master/update"
 MAKE="make -j$(nproc)"
 mkdir -p "$LUAS_CACHE"
 if [ -d ".luas" ]; then
@@ -46,11 +47,18 @@ use() {
 	exec "$SHELL"
 }
 
+fail_download() {
+	echo "Could not download $1, please try again later." 1>&2
+	exit 1
+}
+
+fail_build() {
+	echo "Could not build $1, please verify if build dependencies are installed in your system." 1>&2
+	exit 1
+}
+
 list() {
-	if [ ! -f "$LUAS_VERSIONS" ]; then
-		echo "Could not connect to network, please try again later." 1>&2
-		exit 1
-	fi
+	[ -f "$LUAS_VERSIONS" ] || fail_download 'update'
 	echo "Legend:"
 	echo "   available"
 	echo " - installed"
@@ -72,10 +80,7 @@ list() {
 
 update() {
 	echo "Updating package list... "
-	if ! curl -# -o "$LUAS_UPDATE" "https://raw.githubusercontent.com/limadm/luas/master/update"; then
-		echo "Could not connect to network, please try again later." 1>&2
-		exit 1
-	fi
+	(curl -# -o "$LUAS_UPDATE" "$LUAS_UPDATE_URL") || fail_download 'update'
 	head -n-1 "$LUAS_UPDATE" >"$LUAS_VERSIONS"
 	tail -n1  "$LUAS_UPDATE" >"$LUAS_LUAROCKS"
 	echo "Done."
@@ -89,10 +94,7 @@ getpkg() {
 	file="$LUAS_CACHE/$name.tar.gz"
 	md5s="$(md5sum "$file" | cut -c1-32)"
 	if [ "$md5" != "$md5s" ]; then
-		if ! curl -# -L -o "$file" "$url"; then
-			echo "Could not download package file, please try again later." 1>&2
-			exit 1
-		fi
+		(curl -# -L -o "$file" "$url") || fail_download 'package file'
 	fi
 	tar -xzf "$file" -C "$2"
 	echo $name
@@ -108,10 +110,7 @@ platform() {
 }
 
 install() {
-	if [ ! -f "$LUAS_VERSIONS" ]; then
-		echo "An update is needed, please try again later." 1>&2
-		exit 1
-	fi
+	[ -f "$LUAS_VERSIONS" ] || fail_download 'update'
 
 	echo "Installing $1..."
 	install_dir="$LUAS_DIR/$1"
@@ -121,14 +120,11 @@ install() {
 	lua_pkg="$(getpkg "$1" "$tmp_dir" "$LUAS_VERSIONS")"
 	lua_dir="$tmp_dir/$lua_pkg"
 	if echo "$1" | fgrep -q luajit; then
-		$MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir"
+		($MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir") || fail_build 'luajit'
 		ln -sf "$1" "$install_dir/bin/luajit"
 	else
 		sed -i "s;INSTALL_TOP= /usr/local;INSTALL_TOP= $install_dir;" "$lua_dir/Makefile"
-		if !( $MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install ); then
-			echo "Could not build lua, please verify if build dependencies are installed in your system." 1>&2
-			exit 1
-		fi
+		($MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install) || fail_build 'lua'
 	fi
 
 	rocks_ver="$(cut -f1 "$LUAS_LUAROCKS")"
@@ -141,10 +137,7 @@ install() {
 	else
 		"$rocks_dir/configure" --prefix="$install_dir"
 	fi
-	if !( $MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install ); then
-		echo "Could not build luarocks, please verify if build dependencies are installed in your system." 1>&2
-		exit 1
-	fi
+	($MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install) || fail_build 'luarocks'
 	rm -rf "$tmp_dir"
 	echo ""
 	echo "Done."
