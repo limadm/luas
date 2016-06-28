@@ -9,7 +9,7 @@ Installs packages to `./.luas` (or `~/.luas` by default if the former does not e
 Installation:
 
 	$ git clone github.com:limadm/luas
-	$ cd luas && sudo ./install.sh
+	$ cd luas && sudo make install
 
 Usage:
 
