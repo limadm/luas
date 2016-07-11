@@ -64,7 +64,7 @@ list() {
 	echo " - installed"
 	echo " * active"
 	echo ""
-	echo "Versions:"
+	echo "Versions in $LUAS_DIR:"
 	cut -f1 "$LUAS_VERSIONS" | \
 		while read -r ver; do
 			if $(echo "$LUA_PATH" | fgrep -q "$ver"); then
