@@ -157,6 +157,12 @@ remove() {
 	echo "Done."
 }
 
+init() {
+	mkdir -p .luas
+	luas install $1
+	luas use $1
+}
+
 if [ ! -f "$LUAS_VERSIONS" ]; then
 	update
 fi
@@ -164,6 +170,7 @@ fi
 case "$1" in
 (install)  install  $2 ;;
 (remove)   remove   $2 ;;
+(init)     init     $2 ;;
 (use)      use      $2 ;;
 (update)   update      ;;
 (list)     list        ;;
