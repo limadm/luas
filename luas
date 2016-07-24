@@ -1,5 +1,5 @@
 #!/bin/sh
-# Lua environment manager 0.4
+# Lua environment manager 0.6
 # Published under MIT license. Daniel Lima, 2016 <danielm@tinyhub.tk>
 
 LUAS_CACHE="$HOME/.cache/luas"
@@ -19,7 +19,7 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.4	Lua environment manager"
+	echo "luas 0.6	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list               list available, installed and active versions"
@@ -38,6 +38,7 @@ use() {
 		echo "$1 is not installed." 1>&2
 		exit 1
 	fi
+	echo "Using $LUAS_DIR/$1"
 	if [ ! "$LUAS_PATH" ]; then
 		export LUAS_PATH="$PATH"
 	fi
@@ -122,6 +123,7 @@ install() {
 	if echo "$1" | fgrep -q luajit; then
 		($MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir") || fail_build 'luajit'
 		ln -sf "$1" "$install_dir/bin/luajit"
+		ln -sf "$install_dir/share/$1/jit" "$install_dir/share/lua/5.1/jit"
 	else
 		sed -i "s;INSTALL_TOP= /usr/local;INSTALL_TOP= $install_dir;" "$lua_dir/Makefile"
 		($MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install) || fail_build 'lua'
