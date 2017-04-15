@@ -1,4 +1,4 @@
-lua-5.3.3	https://www.lua.org/ftp/lua-5.3.3.tar.gz	703f75caa4fdf4a911c1a72e67a27498
+lua-5.3.4	https://www.lua.org/ftp/lua-5.3.4.tar.gz	53a9c68bcc0eda58bdc2095ad5cdfc63
 lua-5.2.4	https://www.lua.org/ftp/lua-5.2.4.tar.gz	913fdb32207046b273fdb17aad70be13
 lua-5.1.5	https://www.lua.org/ftp/lua-5.1.5.tar.gz	553fa05b980f4833352815026fe87699
 luajit-2.1.0-beta2	http://luajit.org/download/LuaJIT-2.1.0-beta2.tar.gz	fa14598d0d775a7ffefb138a606e0d7b
