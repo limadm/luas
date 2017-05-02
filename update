@@ -1,7 +1,9 @@
 lua-5.3.4	https://www.lua.org/ftp/lua-5.3.4.tar.gz	53a9c68bcc0eda58bdc2095ad5cdfc63
 lua-5.2.4	https://www.lua.org/ftp/lua-5.2.4.tar.gz	913fdb32207046b273fdb17aad70be13
 lua-5.1.5	https://www.lua.org/ftp/lua-5.1.5.tar.gz	553fa05b980f4833352815026fe87699
+luajit-2.1.0-beta3	http://luajit.org/download/LuaJIT-2.1.0-beta3.tar.gz	eae40bc29d06ee5e3078f9444fcea39b
 luajit-2.1.0-beta2	http://luajit.org/download/LuaJIT-2.1.0-beta2.tar.gz	fa14598d0d775a7ffefb138a606e0d7b
 luajit-2.1.0-beta1	http://luajit.org/download/LuaJIT-2.1.0-beta1.tar.gz	5a5bf71666e77cf6e7a1ae851127b834
+luajit-2.0.5	http://luajit.org/download/LuaJIT-2.0.5.tar.gz	48353202cbcacab84ee41a5a70ea0a2c
 luajit-2.0.4	http://luajit.org/download/LuaJIT-2.0.4.tar.gz	dd9c38307f2223a504cbfb96e477eca0
 luarocks-2.3.0	http://luarocks.org/releases/luarocks-2.3.0.tar.gz	a38126684cf42b7d0e7a3c7cf485defb
