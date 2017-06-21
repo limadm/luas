@@ -1,29 +1,27 @@
 #!/bin/sh
-# Lua environment manager 0.6
-# Published under MIT license. Daniel Lima, 2016 <danielm@tinyhub.tk>
+# Lua environment manager 0.7
+# Published under MIT license. Daniel Lima, 2016 <danielm@nanohub.tk>
 
 LUAS_CACHE="$HOME/.cache/luas"
-LUAS_UPDATE="$LUAS_CACHE/update"
-LUAS_VERSIONS="$LUAS_CACHE/versions"
-LUAS_LUAROCKS="$LUAS_CACHE/luarocks_version"
-LUAS_UPDATE_URL="https://raw.githubusercontent.com/limadm/luas/master/update"
+LUAS_INDEX="$LUAS_CACHE/index"
+LUAS_INDEX_URL="https://raw.githubusercontent.com/limadm/luas/master/index"
 MAKE="make -j$(nproc)"
 mkdir -p "$LUAS_CACHE"
 if [ -d ".luas" ]; then
 	LUAS_DIR="$(pwd)/.luas"
 else
-	LUAS_DIR="$HOME/.luas"
+	LUAS_DIR="$LUAS_CACHE"
 fi
 if [ ! -d "$LUAS_DIR" ]; then
 	mkdir -p "$LUAS_DIR"
 fi
 
 help() {
-	echo "luas 0.6	Lua environment manager"
+	echo "luas 0.7	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list               list available, installed and active versions"
-	echo "  luas update             update version list"
+	echo "  luas update             update package list"
 	echo "  luas init <version>     create .luas in current dir and install version"
 	echo "  luas install <version>  install lua version and latest luarocks"
 	echo "  luas remove <version>   remove lua version and its luarocks tree"
@@ -59,14 +57,14 @@ fail_build() {
 }
 
 list() {
-	[ -f "$LUAS_VERSIONS" ] || fail_download 'update'
+	[ -f "$LUAS_INDEX" ] || fail_download 'update'
 	echo "Legend:"
 	echo "   available"
 	echo " - installed"
 	echo " * active"
 	echo ""
 	echo "Versions in $LUAS_DIR:"
-	cut -f1 "$LUAS_VERSIONS" | \
+	grep "^lua[^r]" "$LUAS_INDEX" | cut -f1 | \
 		while read -r ver; do
 			if $(echo "$LUA_PATH" | fgrep -q "$ver"); then
 				echo " * $ver"
@@ -81,21 +79,22 @@ list() {
 
 update() {
 	echo "Updating package list... "
-	(curl -# -o "$LUAS_UPDATE" "$LUAS_UPDATE_URL") || fail_download 'update'
-	head -n-1 "$LUAS_UPDATE" >"$LUAS_VERSIONS"
-	tail -n1  "$LUAS_UPDATE" >"$LUAS_LUAROCKS"
+	(curl -# -o "$LUAS_INDEX" "$LUAS_INDEX_URL") || fail_download 'update'
 	echo "Done."
 }
 
+checksum() {
+	[ "$(md5sum "$1" | cut -c1-32)" = "$2" ]
+}
+
 getpkg() {
-	info="$(grep "$1" "$3")"
+	info="$(fgrep "$1" "$LUAS_INDEX")"
 	url="$(echo "$info" | cut -f2)"
 	md5="$(echo "$info" | cut -f3)"
 	name="$(basename "$url" .tar.gz)"
 	file="$LUAS_CACHE/$name.tar.gz"
-	md5s="$(md5sum "$file" | cut -c1-32)"
-	if [ "$md5" != "$md5s" ]; then
-		(curl -# -L -o "$file" "$url") || fail_download 'package file'
+	if ! checksum "$file" "$md5"; then
+		(curl -# -L -o "$file" "$url") && (checksum "$file" "$md5") || fail_download 'package file'
 	fi
 	tar -xzf "$file" -C "$2"
 	echo $name
@@ -111,14 +110,14 @@ platform() {
 }
 
 install() {
-	[ -f "$LUAS_VERSIONS" ] || fail_download 'update'
+	[ -f "$LUAS_INDEX" ] || fail_download 'update'
 
 	echo "Installing $1..."
 	install_dir="$LUAS_DIR/$1"
 	mkdir -p "$install_dir"
 	tmp_dir="$(mktemp -d)"
 
-	lua_pkg="$(getpkg "$1" "$tmp_dir" "$LUAS_VERSIONS")"
+	lua_pkg="$(getpkg "$1" "$tmp_dir")"
 	lua_dir="$tmp_dir/$lua_pkg"
 	if echo "$1" | fgrep -q luajit; then
 		($MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir") || fail_build 'luajit'
@@ -129,15 +128,15 @@ install() {
 		($MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install) || fail_build 'lua'
 	fi
 
-	rocks_ver="$(cut -f1 "$LUAS_LUAROCKS")"
-	rocks_pkg="$(getpkg "$rocks_ver" "$tmp_dir" "$LUAS_LUAROCKS")"
+	rocks_ver="$(grep "^luarocks" "$LUAS_INDEX" | cut -f1)"
+	rocks_pkg="$(getpkg "$rocks_ver" "$tmp_dir")"
 	rocks_dir="$tmp_dir/$rocks_pkg"
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
 	if echo "$1" | fgrep -q luajit; then
 		"$rocks_dir/configure" --lua-suffix=jit --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
 	else
-		"$rocks_dir/configure" --prefix="$install_dir"
+		"$rocks_dir/configure" --prefix="$install_dir" --with-lua="$install_dir"
 	fi
 	($MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install) || fail_build 'luarocks'
 	rm -rf "$tmp_dir"
@@ -165,7 +164,7 @@ init() {
 	luas use $1
 }
 
-if [ ! -f "$LUAS_VERSIONS" ]; then
+if [ ! -f "$LUAS_INDEX" ]; then
 	update
 fi
 

@@ -3,8 +3,9 @@ Lua environment manager
 
 An environment manager for Lua VMs in the spirit of rvm/rbenv, written from scratch,
 minimal dependencies (base/devel, gcc and make), simpler commands, shell completions
-and latest luarocks (2.3.0).
-Installs packages to `./.luas` (or `~/.luas` by default if the former does not exist).
+and latest luarocks (2.4.2).
+Installs packages to `./.luas` (or `~/.cache/luas` by default if the former does not
+exist).
 
 Installation:
 
@@ -26,9 +27,9 @@ Currently supported versions:
 	lua-5.3.3
 	lua-5.2.4
 	lua-5.1.5
+	luajit-2.1.0-beta3
 	luajit-2.1.0-beta2
-	luajit-2.1.0-beta1
-	luajit-2.0.4
+	luajit-2.0.5
 
 Check out the other options too!
 
@@ -38,4 +39,4 @@ Check out the other options too!
 
 ----
 
-Published under MIT license. Daniel Lima, 2016 <danielm@tinyhub.tk>
+Published under MIT license. Daniel Lima, 2016 <danielm@nanohub.tk>

@@ -1,17 +1,17 @@
 #!/bin/bash
 # Bash completions for luas
-# Published under MIT license. Daniel Lima, 2016 <danielm@tinyhub.tk>
+# Published under MIT license. Daniel Lima, 2016 <danielm@nanohub.tk>
 
 _luas_available()
 {
-	cut -f1 "$HOME/.cache/luas/versions"
+	grep "^lua[^r]" "$HOME/.cache/luas/index" | cut -f1
 } &&
 _luas_installed()
 {
 	if [ -d .luas ]; then
 		/bin/ls -1 .luas
 	else
-		/bin/ls -1 ~/.luas 2>/dev/null
+		/bin/ls -1F ~/.cache/luas 2>/dev/null | grep '/$' | sed 's,/$,,'
 	fi
 } &&
 _luas()
