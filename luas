@@ -1,5 +1,5 @@
 #!/bin/sh
-# Lua environment manager 0.7
+# Lua environment manager 0.7.1
 # Published under MIT license. Daniel Lima, 2016 <danielm@nanohub.tk>
 
 LUAS_CACHE="$HOME/.cache/luas"
@@ -17,7 +17,7 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.7	Lua environment manager"
+	echo "luas 0.7.1	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list                 list available, installed (-) and active (*) versions"
