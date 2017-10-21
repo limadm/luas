@@ -20,13 +20,13 @@ help() {
 	echo "luas 0.7	Lua environment manager"
 	echo ""
 	echo "Usage:"
-	echo "  luas list               list available, installed and active versions"
-	echo "  luas update             update package list"
-	echo "  luas init <version>     create .luas in current dir and install version"
-	echo "  luas install <version>  install lua version and latest luarocks"
-	echo "  luas remove <version>   remove lua version and its luarocks tree"
-	echo "  luas use <version>      setup environment to use version"
-	echo "  luas help               print this message"
+	echo "  luas list                 list available, installed (-) and active (*) versions"
+	echo "  luas update               update package list"
+	echo "  luas init    <version>    create .luas in current dir and install version"
+	echo "  luas install <version>    install lua version and latest luarocks"
+	echo "  luas remove  <version>    remove lua version and its luarocks tree"
+	echo "  luas use     <version>    setup environment to use version"
+	echo "  luas help                 print this message"
 	echo ""
 }
 
@@ -58,12 +58,7 @@ fail_build() {
 
 list() {
 	[ -f "$LUAS_INDEX" ] || fail_download 'update'
-	echo "Legend:"
-	echo "   available"
-	echo " - installed"
-	echo " * active"
-	echo ""
-	echo "Versions in $LUAS_DIR:"
+	echo "Versions for $LUAS_DIR:"
 	grep "^lua[^r]" "$LUAS_INDEX" | cut -f1 | \
 		while read -r ver; do
 			if $(echo "$LUA_PATH" | fgrep -q "$ver"); then
