@@ -10,7 +10,7 @@ function __fish_luas_complete
 				echo $opt
 			end
 		case init install
-			grep "^lua[^r]" "$HOME/.cache/luas/index" | cut -f1
+			grep -v "^luarocks" "$HOME/.cache/luas/index" | cut -f1
 		case use remove
 			if test -d .luas
 				/bin/ls -1 .luas

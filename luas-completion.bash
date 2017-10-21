@@ -4,7 +4,7 @@
 
 _luas_available()
 {
-	grep "^lua[^r]" "$HOME/.cache/luas/index" | cut -f1
+	grep -v "^luarocks" "$HOME/.cache/luas/index" | cut -f1
 } &&
 _luas_installed()
 {
