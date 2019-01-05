@@ -1,5 +1,5 @@
 #!/bin/sh
-# Lua environment manager 0.7.5
+# Lua environment manager 0.7.6
 # Published under MIT license. Daniel Lima, 2016 <danielmariodelima@gmail.com>
 
 LUAS_CACHE="$HOME/.cache/luas"
@@ -17,7 +17,7 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.7.1	Lua environment manager"
+	echo "luas 0.7.6	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list                 list available versions, installed (-) and active (*)"
@@ -129,7 +129,7 @@ install() {
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
 	if echo "$1" | fgrep -q luajit; then
-		"$rocks_dir/configure" --lua-suffix=jit --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
+		"$rocks_dir/configure" --lua-suffix=jit --lua-version=5.1 --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
 	else
 		"$rocks_dir/configure" --prefix="$install_dir" --with-lua="$install_dir"
 	fi
