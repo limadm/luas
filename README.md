@@ -24,13 +24,13 @@ Usage:
 
 Current versions:
 
-	lua-5.3.4
+	lua-5.3.5
 	lua-5.2.4
 	lua-5.1.5
 	luajit-2.1.0-beta3
 	luajit-2.1.0-beta2
 	luajit-2.0.5
-	luarocks-2.4.3
+	luarocks-3.0.4
 
 Check out the other options too!
 
@@ -40,4 +40,4 @@ Check out the other options too!
 
 ----
 
-Published under MIT license. Daniel Lima, 2016-2017 <danielm@nanohub.tk>
+Published under MIT license. Daniel Lima, 2016 <danielmariodelima@gmail.com>

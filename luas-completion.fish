@@ -1,6 +1,6 @@
 #!/bin/fish
 # Fish completions for luas
-# Published under MIT license. Daniel Lima, 2016 <danielm@nanohub.tk>
+# Published under MIT license. Daniel Lima, 2016 <danielmariodelima@gmail.com>
 
 function __fish_luas_complete
 	set cmd (commandline -opc)
