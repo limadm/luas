@@ -6,12 +6,12 @@ function __fish_luas_complete
 	set cmd (commandline -opc)
 	switch $cmd[-1]
 		case luas
-			for opt in help init install list remove update use
+			for opt in help init install list remove run update use
 				echo $opt
 			end
 		case init install
 			grep -v "^luarocks" "$HOME/.cache/luas/index" | cut -f1
-		case use remove
+		case use remove run
 			if test -d .luas
 				/bin/ls -1 .luas
 			else

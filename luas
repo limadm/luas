@@ -1,6 +1,6 @@
 #!/bin/sh
-# Lua environment manager 0.7.6
-# Published under MIT license. Daniel Lima, 2016 <danielmariodelima@gmail.com>
+# Lua environment manager
+# Published under MIT license. Daniel Lima, 2016-2018 <danielmariodelima@gmail.com>
 
 LUAS_CACHE="$HOME/.cache/luas"
 LUAS_INDEX="$LUAS_CACHE/index"
@@ -17,33 +17,61 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.7.6	Lua environment manager"
+	echo "luas 0.7.7	Lua environment manager"
 	echo ""
 	echo "Usage:"
-	echo "  luas list                 list available versions, installed (-) and active (*)"
-	echo "  luas update               update versions list"
-	echo "  luas init    <version>    create .luas in current dir and install version"
-	echo "  luas install <version>    install lua version and latest luarocks"
-	echo "  luas remove  <version>    remove lua version and its luarocks tree"
-	echo "  luas use     <version>    setup environment to use version"
-	echo "  luas help                 print this message"
+	echo "  luas list                               list versions as:"
+	echo "                                                 available"
+	echo "                                               - installed"
+	echo "                                               * active"
+	echo "  luas update                             update versions list"
+	echo "  luas init    <version>                  create ./.luas and install version"
+	echo "  luas install <version>                  install lua version with luarocks"
+	echo "  luas remove  <version>                  remove lua version and its luarocks tree"
+	echo "  luas use     <version>                  setup environment to use version"
+	echo "  luas run     <version> <command>        run command on version"
+	echo "  luas help                               print this message"
 	echo ""
+}
+
+_env() {
+	luarocks="$LUAS_DIR/$1/bin/luarocks"
+	if [ ! -x "$luarocks" ]; then
+		echo "$1 is not installed."
+		exit 1
+	fi
+	echo "export PATH=\"$($luarocks path --lr-bin):$PATH\""
+	echo "export LUA_PATH=\"./?.lua;./?/init.lua;$($luarocks path --lr-path)\""
+	echo "export LUA_CPATH=\"./?.so;$($luarocks path --lr-cpath)\""
 }
 
 use() {
 	luarocks="$LUAS_DIR/$1/bin/luarocks"
 	if [ ! -x "$luarocks" ]; then
-		echo "$1 is not installed." 1>&2
+		echo "$1 is not installed."
 		exit 1
 	fi
-	echo "Using $LUAS_DIR/$1"
 	if [ ! "$LUAS_PATH" ]; then
 		export LUAS_PATH="$PATH"
 	fi
 	export PATH="$($luarocks path --lr-bin):$LUAS_PATH"
 	export LUA_PATH="./?.lua;./?/init.lua;$($luarocks path --lr-path)"
 	export LUA_CPATH="./?.so;$($luarocks path --lr-cpath)"
-	exec "$SHELL"
+	version="$1"
+	shift 1
+	if [ $# -gt 0 ]; then
+		echo $@ | /bin/sh -s
+	else
+		echo "Using $LUAS_DIR/$version"
+		exec $SHELL
+	fi
+}
+
+run() {
+	version="$1"
+	shift 1
+	SHELL="/bin/sh"
+	use $version "$@"
 }
 
 fail_download() {
@@ -129,9 +157,9 @@ install() {
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
 	if echo "$1" | fgrep -q luajit; then
-		"$rocks_dir/configure" --lua-suffix=jit --lua-version=5.1 --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
+		sh "$rocks_dir/configure" --lua-suffix=jit --lua-version=5.1 --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
 	else
-		"$rocks_dir/configure" --prefix="$install_dir" --with-lua="$install_dir"
+		sh "$rocks_dir/configure" --prefix="$install_dir" --with-lua="$install_dir"
 	fi
 	($MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install) || fail_build 'luarocks'
 	rm -rf "$tmp_dir"
@@ -163,12 +191,16 @@ if [ ! -f "$LUAS_INDEX" ]; then
 	update
 fi
 
-case "$1" in
-(install)  install  $2 ;;
-(remove)   remove   $2 ;;
-(init)     init     $2 ;;
-(use)      use      $2 ;;
-(update)   update      ;;
-(list)     list        ;;
-(*)        help        ;;
+cmd="$1"
+shift 1
+case "$cmd" in
+(install)  install  $@ ;;
+(remove)   remove   $@ ;;
+(init)     init     $@ ;;
+(env)      _env     $@ ;;
+(use)      use      $@ ;;
+(run)      run      $@ ;;
+(update)   update   $@ ;;
+(list)     list     $@ ;;
+(*)        help     $@ ;;
 esac

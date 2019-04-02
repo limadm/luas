@@ -19,9 +19,9 @@ _luas()
 	local cur prev words cword
 	_init_completion || return
 	case $prev in
-		use|remove)   COMPREPLY=($(compgen -W "$(_luas_installed)" -- "$cur")) ;;
-		init|install) COMPREPLY=($(compgen -W "$(_luas_available)" -- "$cur")) ;;
-		luas)         COMPREPLY=($(compgen -W 'help init install list remove use update' -- "$cur")) ;;
+		use|remove|run) COMPREPLY=($(compgen -W "$(_luas_installed)" -- "$cur")) ;;
+		init|install)   COMPREPLY=($(compgen -W "$(_luas_available)" -- "$cur")) ;;
+		luas)           COMPREPLY=($(compgen -W 'help init install list remove run use update' -- "$cur")) ;;
 	esac
 	return 0
 } &&
