@@ -17,7 +17,7 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.7.8	Lua environment manager"
+	echo "luas 0.8.0	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list                               list versions as:"
