@@ -24,6 +24,7 @@ Usage:
 
 Current versions:
 
+	lua-5.4.0-beta
 	lua-5.3.5
 	lua-5.2.4
 	lua-5.1.5
