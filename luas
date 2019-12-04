@@ -1,6 +1,6 @@
 #!/bin/sh
 # Lua environment manager
-# Published under MIT license. Daniel Lima, 2016-2018 <danielmariodelima@gmail.com>
+# Published under MIT license. Daniel Lima, 2016-2019 <danielmariodelima@gmail.com>
 
 LUAS_CACHE="$HOME/.cache/luas"
 LUAS_INDEX="$LUAS_CACHE/index"
@@ -17,7 +17,7 @@ if [ ! -d "$LUAS_DIR" ]; then
 fi
 
 help() {
-	echo "luas 0.7.7	Lua environment manager"
+	echo "luas 0.7.8	Lua environment manager"
 	echo ""
 	echo "Usage:"
 	echo "  luas list                               list versions as:"
@@ -81,6 +81,7 @@ fail_download() {
 
 fail_build() {
 	echo "Could not build $1, please verify if build dependencies are installed in your system." 1>&2
+	[ -n "$2" ] && rm -rf "$2"
 	exit 1
 }
 
@@ -120,7 +121,11 @@ getpkg() {
 		(curl -# -L -o "$file" "$url") && (checksum "$file" "$md5") || fail_download 'package file'
 	fi
 	tar -xzf "$file" -C "$2"
-	echo $name
+	if echo "$1" | fgrep -q moonjit; then
+		echo moonjit-$name
+	else
+		echo $name
+	fi
 }
 
 platform() {
@@ -138,17 +143,18 @@ install() {
 	echo "Installing $1..."
 	install_dir="$LUAS_DIR/$1"
 	mkdir -p "$install_dir"
-	tmp_dir="$(mktemp -d)"
+	tmp_dir="$(mktemp -d -p $LUAS_CACHE)"
 
 	lua_pkg="$(getpkg "$1" "$tmp_dir")"
 	lua_dir="$tmp_dir/$lua_pkg"
-	if echo "$1" | fgrep -q luajit; then
-		($MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir") || fail_build 'luajit'
-		ln -sf "$1" "$install_dir/bin/luajit"
-		ln -sf "$install_dir/share/$1/jit" "$install_dir/share/lua/5.1/jit"
+	if echo "$1" | fgrep -q jit; then
+		($MAKE -C "$lua_dir" && $MAKE -C "$lua_dir" install PREFIX="$install_dir") || fail_build "$1" "$tmp_dir"
+		name="$(echo $1 | sed 's/^moon/lua/')"
+		ln -sf "$name" "$install_dir/bin/luajit"
+		ln -sf "$install_dir/share/$name/jit" "$install_dir/share/lua/5.1/jit"
 	else
 		sed -i "s;INSTALL_TOP= /usr/local;INSTALL_TOP= $install_dir;" "$lua_dir/Makefile"
-		($MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install) || fail_build 'lua'
+		($MAKE -C "$lua_dir" $(platform) && $MAKE -C "$lua_dir" install) || fail_build "$1" "$tmp_dir"
 	fi
 
 	rocks_ver="$(grep "^luarocks" "$LUAS_INDEX" | cut -f1)"
@@ -156,15 +162,10 @@ install() {
 	rocks_dir="$tmp_dir/$rocks_pkg"
 	export PATH="$install_dir/bin:$PATH"
 	cd "$rocks_dir"
-	if echo "$1" | fgrep -q luajit; then
-		sh "$rocks_dir/configure" --lua-suffix=jit --lua-version=5.1 --with-lua-include="$install_dir/include/$(echo $1 | cut -c1-10)" --prefix="$install_dir"
-	else
-		sh "$rocks_dir/configure" --prefix="$install_dir" --with-lua="$install_dir" --lua-version=$(echo $1 | cut -c1-3)
-	fi
-	($MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install) || fail_build 'luarocks'
+	sh "$rocks_dir/configure" --prefix="$install_dir" --lua-suffix=jit --with-lua="$install_dir"
+	($MAKE -C "$rocks_dir" build && $MAKE -C "$rocks_dir" install) || fail_build 'luarocks' "$tmp_dir"
 	rm -rf "$tmp_dir"
-	echo ""
-	echo "Done."
+	echo -e "\nDone."
 }
 
 remove() {
@@ -191,8 +192,10 @@ if [ ! -f "$LUAS_INDEX" ]; then
 	update
 fi
 
-cmd="$1"
-shift 1
+if [ -n "$1" ]; then
+	cmd="$1"
+	shift 1
+fi
 case "$cmd" in
 (install)  install  $@ ;;
 (remove)   remove   $@ ;;

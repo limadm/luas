@@ -29,7 +29,8 @@ Current versions:
 	lua-5.1.5
 	luajit-2.1.0-beta3
 	luajit-2.0.5
-	luarocks-3.0.4
+	moonjit-2.1.2
+	luarocks-3.2.1
 
 Check out the other options too!
 
