@@ -1,6 +1,8 @@
+5.4.0-beta	https://www.lua.org/work/lua-5.4.0-beta.tar.gz	961e2692a10a4a3c6fe80086e4cbefd5
 5.3.5	https://www.lua.org/ftp/lua-5.3.5.tar.gz	4f4b4f323fd3514a68e0ab3da8ce3455
 5.2.4	https://www.lua.org/ftp/lua-5.2.4.tar.gz	913fdb32207046b273fdb17aad70be13
 5.1.5	https://www.lua.org/ftp/lua-5.1.5.tar.gz	2e115fe26e435e33b0d5c022e4490567
 luajit-2.1.0-beta3	http://luajit.org/download/LuaJIT-2.1.0-beta3.tar.gz	eae40bc29d06ee5e3078f9444fcea39b
 luajit-2.0.5	http://luajit.org/download/LuaJIT-2.0.5.tar.gz	48353202cbcacab84ee41a5a70ea0a2c
-luarocks-3.0.4	http://luarocks.org/releases/luarocks-3.0.4.tar.gz	b67be533e0e027a26e3fd2b566ac938f
+moonjit-2.1.2	https://github.com/moonjit/moonjit/archive/2.1.2.tar.gz	f91e8f5c0f8f8a13aba8d4c0e0e64005
+luarocks-3.2.1	http://luarocks.org/releases/luarocks-3.2.1.tar.gz	236ea48b78ddb96ecbd33654a573bdb2
